@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        #weather-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .weather-card {
+            width: 200px;
+            background-color: #fff;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Weather App</h1>
+    </header>
+    
+    <main>
+        <label for="city">Enter City:</label>
+        <input type="text" id="city" placeholder="City name">
+        <button onclick="getWeather()">Get Weather</button>
+
+        <div id="loading">Loading...</div>
+
+        <div id="weather-container"></div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY';
+        const weatherContainer = $('#weather-container');
+        const loadingIndicator = $('#loading');
+
+        function getWeather() {
+            const city = $('#city').val();
+
+            if (city === '') {
+                alert('Please enter a city name.');
+                return;
+            }
+
+            const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+            // Show loading indicator
+            loadingIndicator.show();
+
+            $.ajax({
+                url: apiUrl,
+                method: 'GET',
+                success: function (data) {
+                    displayWeather(data);
+                },
+                error: function (error) {
+                    showError();
+                    console.error(error);
+                },
+                complete: function () {
+                    // Hide loading indicator after request is complete
+                    loadingIndicator.hide();
+                }
+            });
+        }
+
+        function displayWeather(data) {
+            // Clear previous content
+            weatherContainer.empty();
+
+            const cityName = data.name;
+            const temperature = data.main.temp;
+            const description = data.weather[0].description;
+
+            // Create a weather card dynamically
+            const weatherCard = $('<div class="weather-card">')
+                .append(`<h2>${cityName}</h2>`)
+                .append(`<p>Temperature: ${temperature}°C</p>`)
+                .append(`<p>Description: ${description}</p>`);
+
+            // Append weather card to the container
+            weatherContainer.append(weatherCard);
+        }
+
+        function showError() {
+            // Display an error message
+            weatherContainer.html('<p>Error fetching weather data. Please try again.</p>');
+        }
+    </script>
+</body>
+</html>
